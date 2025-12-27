@@ -5,4 +5,6 @@ transformers==4.37.2
 huggingface-hub
 sentencepiece
 numpy
-torch==2.1.2
+
+# CPU-only PyTorch wheel (NO CUDA, NO NVIDIA)
+torch @ https://download.pytorch.org/whl/cpu/torch-2.1.2%2Bcpu-cp311-cp311-linux_x86_64.whl
