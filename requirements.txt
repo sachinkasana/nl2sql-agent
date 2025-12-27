@@ -1,7 +1,10 @@
 fastapi
 uvicorn
 pydantic
-sqlalchemy
-transformers
-torch
+transformers==4.57.3
+huggingface-hub
 sentencepiece
+numpy
+
+# CPU-only PyTorch
+torch==2.1.2+cpu

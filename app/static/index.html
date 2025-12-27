@@ -17,10 +17,13 @@
 
     <section class="input-section">
       <div class="examples">
-        <button class="example-btn" data-query="Show users list from India">Show users list from India</button>
+        <div class="examples-header">Try these examples</div>
+        <button class="example-btn" data-query="Show users from India">Show users from India</button>
         <button class="example-btn" data-query="Show users from India count">Show users from India count</button>
+        <button class="example-btn" data-query="List users from US">List users from US</button>
         <button class="example-btn" data-query="Show failed payments list last 7 days">Show failed payments list last 7 days</button>
-        <button class="example-btn" data-query="Show failed payments count last 7 days">Show failed payments count last 7 days</button>
+        <button class="example-btn" data-query="Show failed payments count last 30 days">Show failed payments count last 30 days</button>
+        <button class="example-btn" data-query="Show users from India">Show users from India (then reply with list/count)</button>
       </div>
       <textarea id="question" maxlength="300" placeholder="Ask a question..."></textarea>
       <div class="actions">
@@ -32,6 +35,12 @@
     <section class="output-section">
       <h2>Response</h2>
       <pre id="response" class="response-viewer">{}</pre>
+    </section>
+
+    <section class="output-section">
+      <h2>System-level demo stats (no user tracking)</h2>
+      <button id="refreshStats">Refresh Stats</button>
+      <pre id="stats" class="response-viewer">{}</pre>
     </section>
   </main>
 

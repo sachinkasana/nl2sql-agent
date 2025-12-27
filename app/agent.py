@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from time import perf_counter
 from typing import List
 
 from transformers import pipeline
@@ -21,6 +22,15 @@ from .extractors import extract_country
 MODEL_NAME = "google/flan-t5-base"  # or t5-small variant
 
 _generator = None
+_stats = {
+    "total_requests": 0,
+    "deterministic_requests": 0,
+    "llm_requests": 0,
+    "list_queries": 0,
+    "count_queries": 0,
+    "avg_latency_ms": 0.0,
+    "error_count": 0,
+}
 
 
 def load_model() -> None:
@@ -111,8 +121,16 @@ def _resolve_followup(pending_question: str, follow_up: str) -> str | None:
     return None
 
 
+def stats_snapshot() -> dict:
+    """Return a shallow copy of stats for external endpoints."""
+    return dict(_stats)
+
+
 def run_agent(question: str) -> AskResponse:
     """Process a user question end-to-end with model, guardrails, and execution."""
+    start_time = perf_counter()
+    _stats["total_requests"] += 1
+
     pending_question, _ = get_pending()
     combined_question = question
 
@@ -152,14 +170,7 @@ def run_agent(question: str) -> AskResponse:
         )
 
     lower_q = normalized_question.lower()
-    is_simple_query = is_simple_query = (
-    intent.get("is_filter")
-    or intent.get("is_aggregate")
-    or (
-        "payment" in lower_q
-        and intent.get("has_time_range")
-    )
-)
+    is_simple_query = intent.get("is_filter") or intent.get("is_aggregate")
     has_group_by = intent.get("is_group_by")
     has_join_keywords = any(k in lower_q for k in (" join ", "join "))
 
@@ -176,6 +187,10 @@ def run_agent(question: str) -> AskResponse:
         if "30 days" in lower_q or "last 30 days" in lower_q:
             since_days = 30
         aggregate = intent.get("is_aggregate", False)
+        if aggregate:
+            _stats["count_queries"] += 1
+        else:
+            _stats["list_queries"] += 1
         deterministic_sql = build_payments_query(
             status=status, since_days=since_days, aggregate=aggregate
         )
@@ -186,6 +201,12 @@ def run_agent(question: str) -> AskResponse:
             explanation = "Query executed via deterministic routing."
             if columns and rows:
                 explanation = f"Returned {len(rows)} rows with columns: {', '.join(columns)}."
+            _stats["deterministic_requests"] += 1
+            elapsed = (perf_counter() - start_time) * 1000
+            _stats["avg_latency_ms"] = (
+                (_stats["avg_latency_ms"] * (_stats["total_requests"] - 1) + elapsed)
+                / _stats["total_requests"]
+            )
             return AskResponse(
                 answer="Here are the results of your query.",
                 sql=deterministic_sql,
@@ -195,6 +216,7 @@ def run_agent(question: str) -> AskResponse:
                 warnings=[],
             )
         except Exception:
+            _stats["error_count"] += 1
             return AskResponse(
                 answer="",
                 sql=deterministic_sql,
@@ -225,6 +247,12 @@ def run_agent(question: str) -> AskResponse:
             explanation = "Query executed via deterministic routing."
             if columns and rows:
                 explanation = f"Returned {len(rows)} rows with columns: {', '.join(columns)}."
+            _stats["deterministic_requests"] += 1
+            elapsed = (perf_counter() - start_time) * 1000
+            _stats["avg_latency_ms"] = (
+                (_stats["avg_latency_ms"] * (_stats["total_requests"] - 1) + elapsed)
+                / _stats["total_requests"]
+            )
             return AskResponse(
                 answer="Here are the results of your query.",
                 sql=deterministic_sql,
@@ -234,6 +262,7 @@ def run_agent(question: str) -> AskResponse:
                 warnings=[],
             )
         except Exception:
+            _stats["error_count"] += 1
             return AskResponse(
                 answer="",
                 sql=deterministic_sql,
@@ -300,6 +329,16 @@ def run_agent(question: str) -> AskResponse:
         explanation = "Query executed safely with guardrails applied."
         if columns and rows:
             explanation = f"Returned {len(rows)} rows with columns: {', '.join(columns)}."
+        _stats["llm_requests"] += 1
+        if intent.get("is_aggregate"):
+            _stats["count_queries"] += 1
+        elif intent.get("is_filter"):
+            _stats["list_queries"] += 1
+        elapsed = (perf_counter() - start_time) * 1000
+        _stats["avg_latency_ms"] = (
+            (_stats["avg_latency_ms"] * (_stats["total_requests"] - 1) + elapsed)
+            / _stats["total_requests"]
+        )
         return AskResponse(
             answer="Here are the results of your query.",
             sql=executable_sql,
@@ -309,6 +348,7 @@ def run_agent(question: str) -> AskResponse:
             warnings=warnings,
         )
     except Exception:
+        _stats["error_count"] += 1
         warnings.append("Query failed to execute. Please adjust your request.")
         return AskResponse(
             answer="",

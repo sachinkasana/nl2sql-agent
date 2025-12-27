@@ -2,6 +2,8 @@ const textarea = document.getElementById("question");
 const askBtn = document.getElementById("askBtn");
 const responseEl = document.getElementById("response");
 const loadingEl = document.getElementById("loading");
+const statsEl = document.getElementById("stats");
+const refreshStatsBtn = document.getElementById("refreshStats");
 
 const MAX_LENGTH = 300;
 
@@ -42,6 +44,20 @@ async function sendQuestion() {
   }
 }
 
+async function fetchStats() {
+  try {
+    const res = await fetch("/stats");
+    if (!res.ok) {
+      statsEl.textContent = prettyPrint({ error: "Failed to load stats" });
+      return;
+    }
+    const data = await res.json();
+    statsEl.textContent = prettyPrint(data);
+  } catch (err) {
+    statsEl.textContent = prettyPrint({ error: "Network error", detail: String(err) });
+  }
+}
+
 askBtn.addEventListener("click", sendQuestion);
 
 textarea.addEventListener("input", () => {
@@ -60,3 +76,7 @@ document.querySelectorAll(".example-btn").forEach((btn) => {
 });
 
 setLoading(false);
+if (refreshStatsBtn) {
+  refreshStatsBtn.addEventListener("click", fetchStats);
+  fetchStats();
+}

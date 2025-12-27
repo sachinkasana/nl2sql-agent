@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from .agent import run_agent
+from .agent import run_agent, stats_snapshot
 from .models import AskRequest, AskResponse
 
 app = FastAPI(
@@ -26,6 +26,12 @@ def serve_ui() -> FileResponse:
 def health_check() -> dict:
     """Lightweight health check for uptime probes."""
     return {"status": "ok"}
+
+
+@app.get("/stats")
+def stats() -> dict:
+    """Return lightweight, in-memory demo stats (no user tracking)."""
+    return stats_snapshot()
 
 
 @app.post("/ask", response_model=AskResponse)

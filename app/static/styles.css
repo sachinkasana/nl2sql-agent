@@ -38,6 +38,12 @@ header h1 {
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 12px;
+  align-items: center;
+}
+
+.examples-header {
+  font-weight: 600;
+  margin-right: 8px;
 }
 
 .example-btn {
@@ -96,6 +102,10 @@ textarea {
 
 .output-section {
   margin-top: 20px;
+}
+
+.output-section button {
+  margin-bottom: 8px;
 }
 
 .response-viewer {
