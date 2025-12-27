@@ -5,14 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Natural Language → SQL Demo (Read-Only)</title>
   <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.css" />
 </head>
 <body>
   <main class="container">
     <header>
-      <h1>Natural Language → SQL Demo (Read-Only)</h1>
-      <p class="subtitle">
-        This demo avoids AI for simple queries and uses deterministic SQL. Guardrails keep everything read-only.
-      </p>
+      <div class="title-row">
+        <div>
+          <h1>Natural Language → SQL Demo (Read-Only)</h1>
+          <p class="subtitle">
+            This demo avoids AI for simple queries and uses deterministic SQL. Guardrails keep everything read-only.
+          </p>
+        </div>
+        <button id="themeToggle" class="icon-btn" aria-label="Toggle theme">🌙</button>
+      </div>
     </header>
 
     <section class="input-section">
@@ -27,14 +33,29 @@
       </div>
       <textarea id="question" maxlength="300" placeholder="Ask a question..."></textarea>
       <div class="actions">
-        <button id="askBtn" disabled>Ask</button>
-        <span id="loading" class="hidden">Thinking…</span>
-      </div>
+      <button id="askBtn" disabled>Ask</button>
+      <span id="loading" class="hidden">Thinking…</span>
+    </div>
     </section>
 
     <section class="output-section">
       <h2>Response</h2>
-      <pre id="response" class="response-viewer">{}</pre>
+      <div class="answer-row">
+        <div id="answerText"></div>
+        <div id="latency" class="latency"></div>
+      </div>
+      <div class="sql-block">
+        <div class="sql-header">
+          <span>SQL</span>
+          <button id="copySql" class="secondary-btn" disabled>Copy SQL</button>
+        </div>
+        <pre class="response-viewer code-viewer"><code id="sqlCode" class="language-sql"></code></pre>
+      </div>
+      <div class="table-block">
+        <h3>Rows</h3>
+        <div id="tableContainer" class="table-container">No rows returned</div>
+      </div>
+      <div class="warnings" id="warnings"></div>
     </section>
 
     <section class="output-section">
@@ -48,6 +69,8 @@
     Read-only demo. SELECT queries only. LIMIT enforced.
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-sql.min.js"></script>
   <script src="/static/app.js"></script>
 </body>
 </html>
