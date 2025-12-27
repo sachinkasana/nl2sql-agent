@@ -1,10 +1,8 @@
 fastapi
 uvicorn
 pydantic
-transformers==4.57.3
+transformers==4.37.2
 huggingface-hub
 sentencepiece
 numpy
-
-# CPU-only PyTorch
 torch==2.1.2

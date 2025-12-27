@@ -19,7 +19,7 @@ from .sql_builder import build_users_query, build_payments_query
 from .extractors import extract_country
 
 #MODEL_NAME = "tscholak/finetuned-t5-small-sqlite"
-MODEL_NAME = "google/flan-t5-base"  # or t5-small variant
+MODEL_NAME = "google/flan-t5-small" 
 
 _generator = None
 _stats = {
