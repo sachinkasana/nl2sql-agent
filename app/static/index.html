@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Natural Language → SQL Demo (Read-Only)</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>Natural Language → SQL Demo (Read-Only)</h1>
+      <p class="subtitle">
+        This demo avoids AI for simple queries and uses deterministic SQL. Guardrails keep everything read-only.
+      </p>
+    </header>
+
+    <section class="input-section">
+      <div class="examples">
+        <button class="example-btn" data-query="Show users list from India">Show users list from India</button>
+        <button class="example-btn" data-query="Show users from India count">Show users from India count</button>
+        <button class="example-btn" data-query="Show failed payments list last 7 days">Show failed payments list last 7 days</button>
+        <button class="example-btn" data-query="Show failed payments count last 7 days">Show failed payments count last 7 days</button>
+      </div>
+      <textarea id="question" maxlength="300" placeholder="Ask a question..."></textarea>
+      <div class="actions">
+        <button id="askBtn" disabled>Ask</button>
+        <span id="loading" class="hidden">Thinking…</span>
+      </div>
+    </section>
+
+    <section class="output-section">
+      <h2>Response</h2>
+      <pre id="response" class="response-viewer">{}</pre>
+    </section>
+  </main>
+
+  <footer>
+    Read-only demo. SELECT queries only. LIMIT enforced.
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
